@@ -1,12 +1,19 @@
 """FastAPI application entrypoint."""
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.services import retrieval
 from app.services.vector_store import store
 
 app = FastAPI(title="Student Support RAG Assistant", version="0.1.0")
-
+# Allow the local HTML frontend to call this API from the browser.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # dev only; restrict to specific domains in production
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class ChatRequest(BaseModel):
     question: str
