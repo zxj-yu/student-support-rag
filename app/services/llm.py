@@ -25,8 +25,28 @@ def build_prompt(question: str, contexts: list[dict]) -> str:
     return f"Context:\n{joined}\n\nQuestion: {question}"
 
 
+def _fallback_answer(question: str, contexts: list[dict]) -> str:
+    """Used when no API key is set: return retrieved context directly."""
+    if not contexts:
+        return "(No relevant documents found in the knowledge base.)"
+    lines = [
+        "[No LLM key set - showing retrieved context instead of a generated "
+        "answer.]\n",
+        f"Most relevant sources for: {question!r}\n",
+    ]
+    for i, ctx in enumerate(contexts, 1):
+        title = ctx.get("title", f"source {i}")
+        score = ctx.get("score", 0)
+        text = ctx.get("text", "")
+        lines.append(f"--- Source {i}: {title} (score {score:.3f}) ---\n{text}\n")
+    return "\n".join(lines)
+
+
 def generate(question: str, contexts: list[dict]) -> str:
-    """Non-streaming generation. Streaming is added in Week 2."""
+    """Non-streaming generation. Falls back to raw context if no API key."""
+    if not settings.anthropic_api_key:
+        return _fallback_answer(question, contexts)
+
     client = Anthropic(api_key=settings.anthropic_api_key)
     message = client.messages.create(
         model=settings.llm_model,
