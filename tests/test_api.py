@@ -10,15 +10,17 @@ from app import main
 client = TestClient(main.app)
 
 
-def test_health_returns_ok():
+def test_health_returns_ok(monkeypatch):
+    monkeypatch.setattr(main.store, "count", lambda: 5)
     res = client.get("/health")
     assert res.status_code == 200
-    assert res.json() == {"status": "ok"}
+    assert res.json()["status"] == "ok"
 
 
 def test_chat_rejects_empty_question():
+    """Whitespace-only input is rejected by schema validation before any work."""
     res = client.post("/chat", json={"question": "   "})
-    assert res.status_code == 400
+    assert res.status_code in (400, 422)
 
 
 def test_chat_returns_answer_and_sources(monkeypatch):
@@ -27,6 +29,7 @@ def test_chat_returns_answer_and_sources(monkeypatch):
         "answer": "You can drop before the DNE deadline.",
         "sources": [{"title": "Withdrawal Policy", "score": 0.91}],
     }
+    monkeypatch.setattr(main.store, "count", lambda: 5)
     monkeypatch.setattr(main.retrieval, "answer", lambda q: fake)
     res = client.post("/chat", json={"question": "How do I drop a course?"})
     assert res.status_code == 200

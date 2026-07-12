@@ -32,11 +32,25 @@ def ingest_knowledge_base(path: str = "data/knowledge_base.json") -> int:
     Returns the number of chunks ingested.
     """
     store.ensure_collection()
-    docs = json.loads(Path(path).read_text(encoding="utf-8"))
+
+    raw = Path(path).read_text(encoding="utf-8")
+    try:
+        docs = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"knowledge base is not valid JSON: {exc}") from exc
+
+    if not isinstance(docs, list) or not docs:
+        raise ValueError("knowledge base must be a non-empty JSON array")
 
     texts: list[str] = []
     payloads: list[dict] = []
-    for doc in docs:
+    for i, doc in enumerate(docs):
+        if not isinstance(doc, dict) or "title" not in doc or "text" not in doc:
+            raise ValueError(
+                f"document {i} must be an object with 'title' and 'text' keys"
+            )
+        if not str(doc["text"]).strip():
+            raise ValueError(f"document {i} ({doc['title']!r}) has empty text")
         for chunk in chunk_text(doc["text"]):
             texts.append(chunk)
             payloads.append({"title": doc["title"], "text": chunk})

@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 
     # Retrieval
     top_k: int = 4
+    max_question_chars: int = 1000  # reject pasted-novel inputs early
 
     # LLM
     anthropic_api_key: str = ""
