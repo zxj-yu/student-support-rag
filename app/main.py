@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from app.core.config import settings
-from app.services import retrieval
+from app.services import agent, retrieval
 from app.services.vector_store import store
 
 logging.basicConfig(
@@ -35,6 +35,11 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     answer: str
     sources: list[dict]
+
+
+class AgentResponse(BaseModel):
+    answer: str
+    steps: list[dict]
 
 
 @app.get("/health")
@@ -105,3 +110,40 @@ def chat(req: ChatRequest) -> ChatResponse:
         raise HTTPException(500, f"Failed to answer question: {exc}") from None
 
     return ChatResponse(**result)
+
+
+@app.post("/agent", response_model=AgentResponse)
+def agent_chat(req: ChatRequest) -> AgentResponse:
+    """Agentic endpoint: the model decides which tools to call and in what
+    order, instead of always running the fixed retrieve->generate pipeline.
+
+    The response includes a `steps` trace of the tool calls made, so the
+    decision process is observable. Without an API key it degrades to the
+    plain RAG pipeline.
+    """
+    question = req.question.strip()
+    if not question:
+        raise HTTPException(400, "Question must not be empty.")
+
+    try:
+        if store.count() == 0:
+            raise HTTPException(
+                409, "The knowledge base is empty. Run POST /ingest first."
+            )
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        logger.error("Vector store unreachable during agent chat: %s", exc)
+        raise HTTPException(
+            503, "Vector store is unavailable. Is Qdrant running?"
+        ) from None
+
+    try:
+        result = agent.run_agent(question)
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("Unexpected failure in agent loop")
+        raise HTTPException(500, f"Agent failed to answer: {exc}") from None
+
+    return AgentResponse(**result)

@@ -1,0 +1,42 @@
+[
+  {
+    "question": "How do I drop a course after the deadline?",
+    "expected_source": "Course Withdrawal Policy",
+    "reference_answer": "After the DNE deadline you can withdraw until the DISC deadline; a DISC notation appears on the transcript but does not affect GPA. After the DISC deadline, withdrawal requires documented exceptional circumstances approved by the academic advising office."
+  },
+  {
+    "question": "Can I still sign up for a class in week three of the term?",
+    "expected_source": "Adding a Course After the Deadline",
+    "reference_answer": "The add/drop period ends at the start of the second week, so in week three you need written permission from both the instructor and the department, submitted to the registrar. Approval is not guaranteed."
+  },
+  {
+    "question": "Do pass/fail courses count toward my GPA?",
+    "expected_source": "GPA Calculation",
+    "reference_answer": "No. Courses with a PASS, DISC, or audit notation are excluded from the GPA calculation."
+  },
+  {
+    "question": "If I retake a class, which grade counts?",
+    "expected_source": "GPA Calculation",
+    "reference_answer": "Only the most recent attempt counts toward the GPA, but all attempts remain on the transcript."
+  },
+  {
+    "question": "What happens if my GPA falls below 2.0?",
+    "expected_source": "Academic Standing and Probation",
+    "reference_answer": "A GPA between 1.50 and 1.99 places you on academic probation, requiring advisor meetings and possibly a reduced course load. Below 1.50 may result in academic suspension. Raising the GPA above 2.00 restores good standing."
+  },
+  {
+    "question": "Will I get my money back if I quit a course halfway through?",
+    "expected_source": "Tuition Refund Schedule",
+    "reference_answer": "Refunds are pro-rated by withdrawal date after the DNE deadline; no refund is issued after the 60 percent point of the term. A full refund is only available before the DNE deadline."
+  },
+  {
+    "question": "What does a DISC notation on my transcript mean?",
+    "expected_source": "Course Withdrawal Policy",
+    "reference_answer": "A DISC notation means you withdrew from the course after the DNE deadline; it appears on the transcript but does not affect the GPA."
+  },
+  {
+    "question": "When is the last day to remove a course from my record completely?",
+    "expected_source": "Course Withdrawal Policy",
+    "reference_answer": "Before the DNE deadline, typically the second week of the term. Dropping before this deadline removes the course from the transcript entirely."
+  }
+]
