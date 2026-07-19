@@ -9,9 +9,17 @@ from app.core.config import settings
 
 class VectorStore:
     def __init__(self) -> None:
-        self.client = QdrantClient(
-            host=settings.qdrant_host, port=settings.qdrant_port
-        )
+        if settings.qdrant_url:
+            # Qdrant Cloud (or any remote instance): URL + API key auth.
+            self.client = QdrantClient(
+                url=settings.qdrant_url,
+                api_key=settings.qdrant_api_key or None,
+            )
+        else:
+            # Local / docker-compose: plain host + port, no auth.
+            self.client = QdrantClient(
+                host=settings.qdrant_host, port=settings.qdrant_port
+            )
         self.collection = settings.collection_name
 
     def ensure_collection(self) -> None:

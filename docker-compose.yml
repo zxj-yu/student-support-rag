@@ -11,6 +11,7 @@ services:
     ports:
       - "8000:8000"
     environment:
+      - PORT=8000
       - QDRANT_HOST=qdrant
       - QDRANT_PORT=6333
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}

@@ -1,8 +1,13 @@
 name: Deploy to Cloud Run
 
+# Manual trigger for now (Actions tab -> Deploy to Cloud Run -> Run workflow).
+# Once GCP_SA_KEY / GCP_PROJECT_ID / QDRANT_URL are configured in GitHub
+# Secrets, change this back to:
+#   on:
+#     push:
+#       branches: [main]
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
@@ -21,14 +26,16 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff
+
+      - name: Lint with ruff
+        run: ruff check app tests
 
       - name: Run tests
         run: pytest tests/ -v --tb=short
-        # If you haven't written pytest tests yet, comment this step out for now,
-        # but it's strongly recommended to add them.
-        # Interviewers often ask "how do you ensure code quality?" —
-        # having CI run tests is the most direct answer.
 
   deploy:
     needs: test
@@ -59,9 +66,9 @@ jobs:
             --region $REGION \
             --platform managed \
             --allow-unauthenticated \
-            --memory 1Gi \
+            --memory 2Gi \
             --min-instances 0 \
-            --max-instances 3 \
+            --max-instances 2 \
             --set-env-vars QDRANT_URL=${{ secrets.QDRANT_URL }} \
             --set-secrets QDRANT_API_KEY=qdrant-api-key:latest
 
